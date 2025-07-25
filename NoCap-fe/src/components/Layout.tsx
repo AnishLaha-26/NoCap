@@ -7,7 +7,7 @@ const Layout: React.FC = () => {
     { path: '/detector', label: 'Detector' },
     { path: '/ai-image', label: 'AI Image Detector' },
     { path: '/fake-news', label: 'Fake News' },
-    { path: '/deepfake-analyzer', label: 'Deepfake Analyzer' },
+    { path: '/scam-detector', label: 'Scam Detector' },
     { path: '/about', label: 'About Us' }
   ];
 
