@@ -213,12 +213,6 @@ const AIImageDetector: React.FC = () => {
                 <div className="result-card quality-card">
                   <div className="card-header">
                     <h4>Image Quality</h4>
-                    <div 
-                      className="percentage-badge"
-                      style={{ backgroundColor: getScoreColor(result.image_quality_score) }}
-                    >
-                      {result.image_quality_score}/100
-                    </div>
                   </div>
                   <p className="authenticity-info">
                     Authenticity Score: <span 
@@ -252,10 +246,6 @@ const AIImageDetector: React.FC = () => {
                   <h4>Analysis Reasoning</h4>
                   <p className="reasoning-text">{result.ai_reasoning}</p>
                 </div>
-              </div>
-              
-              <div className="metadata-section">
-                <p className="timestamp">Analysis completed: {new Date(result.timestamp).toLocaleString()}</p>
               </div>
             </div>
           )}
