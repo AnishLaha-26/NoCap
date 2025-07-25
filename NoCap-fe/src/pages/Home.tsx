@@ -13,7 +13,7 @@ const Home: React.FC = () => {
           </h1>
           <p className="hero-description">
             Use the navigation to switch between the AI vs Human Text
-            Detector, Fake News Detector, and learn more About Us.
+            Detector, AI Image Detector, Fake News Detector, Deepfake Video Analyzer, and learn more About Us.
           </p>
           
           {/* Feature Cards */}
@@ -34,6 +34,12 @@ const Home: React.FC = () => {
               <div className="feature-icon">📰</div>
               <h3>Fake News Detection</h3>
               <p>Verify news articles and detect misinformation</p>
+            </div>
+            
+            <div className="feature-card" onClick={() => navigate('/deepfake-analyzer')}>
+              <div className="feature-icon">🎥</div>
+              <h3>Deepfake Video Analyzer</h3>
+              <p>Detect manipulated or AI-generated videos</p>
             </div>
           </div>
           
