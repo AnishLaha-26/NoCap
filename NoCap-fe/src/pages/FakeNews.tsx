@@ -10,14 +10,14 @@ const FakeNews: React.FC = () => {
         </div>
         <div className="news-detector-interface">
           <div className="input-options">
-            <button className="input-type-button active">Text Input</button>
             <button className="input-type-button">URL Input</button>
           </div>
-          <textarea 
-            className="text-input"
-            placeholder="Paste the news article text here..."
-            rows={8}
-          />
+          <input
+              type="url"
+              placeholder="https://example.com/video.mp4"
+              className="text-input"
+            />
+
           <div className="detector-controls">
             <button className="analyze-button">Verify News</button>
             <button className="clear-button">Clear</button>

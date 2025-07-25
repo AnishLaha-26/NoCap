@@ -9,7 +9,7 @@ const Home: React.FC = () => {
       <div className="hero-section">
         <div className="hero-content">
           <h1 className="hero-title">
-            Welcome to the AI & Fake News Detection App
+            Welcome to NoCap
           </h1>
           <p className="hero-description">
             Use the navigation to switch between the AI vs Human Text
@@ -65,3 +65,5 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
+
