@@ -35,7 +35,7 @@ const Detector: React.FC = () => {
     setResult(null);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/text-ai-detection/analyze/', {
+      const response = await fetch('https://nocap-be.onrender.com/text-ai-detection/analyze/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

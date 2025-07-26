@@ -26,7 +26,7 @@ const FakeNews: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Base URL for the backend API
-  const API_BASE_URL = 'http://127.0.0.1:8000';
+  const API_BASE_URL = 'https://nocap-be.onrender.com';
 
   const analyzeNews = async () => {
     if (!url.trim()) {

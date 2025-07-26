@@ -60,7 +60,7 @@ const ScamDetector: React.FC = () => {
       // Extract base64 data without the data URL prefix if present
       const base64Data = imageBase64.split(',')[1] || imageBase64;
       
-      const response = await fetch('http://localhost:8000/scam-detection/analyze/', {
+      const response = await fetch('https://nocap-be.onrender.com/scam-detection/analyze/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
