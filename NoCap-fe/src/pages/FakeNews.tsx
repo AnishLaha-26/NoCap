@@ -25,7 +25,7 @@ const FakeNews: React.FC = () => {
   const [isUrlInput, setIsUrlInput] = useState(true);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<React.ReactNode>(null);
 
   // Base URL for the backend API
   const API_BASE_URL = 'https://nocap-be.onrender.com';
@@ -69,11 +69,126 @@ const FakeNews: React.FC = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
       
+      // Check for 403 Forbidden or blocked access
+      if (errorMessage.includes('403') || errorMessage.toLowerCase().includes('forbidden') || 
+          errorMessage.toLowerCase().includes('blocked') || errorMessage.toLowerCase().includes('access denied')) {
+        try {
+          const domain = new URL(url).hostname.replace('www.', '');
+          setError(
+            <div style={{
+              padding: '1rem',
+              borderRadius: '8px',
+              backgroundColor: '#2d1a1a',
+              border: '1px solid #5c2b2b',
+              color: '#ffcdd2',
+              margin: '1rem 0'
+            }}>
+              <h3 style={{
+                color: '#ff8a80',
+                marginTop: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <span>🔒</span> Access to {domain} Blocked
+              </h3>
+              <p>We couldn't access this URL because the website has security measures that prevent automated access.</p>
+              
+              <div style={{
+                backgroundColor: '#3a2525',
+                padding: '1rem',
+                borderRadius: '6px',
+                margin: '1rem 0'
+              }}>
+                <p style={{ fontWeight: 'bold', marginTop: 0 }}>Here's what you can do:</p>
+                <ol style={{ paddingLeft: '1.5rem', margin: '0.5rem 0' }}>
+                  <li>Switch to <strong>Text Input</strong> mode using the toggle above</li>
+                  <li>Manually copy the article text from the website</li>
+                  <li>Paste it into the text area below</li>
+                  <li>Click "Analyze" to check the content</li>
+                </ol>
+              </div>
+              
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(url);
+                  // Optional: Add a toast notification here
+                }}
+                style={{
+                  backgroundColor: '#5c2b2b',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  margin: '0.5rem 0'
+                }}
+              >
+                📋 Copy URL to Clipboard
+              </button>
+              
+              <div style={{
+                marginTop: '1rem',
+                padding: '0.75rem',
+                backgroundColor: '#3a2525',
+                borderRadius: '6px',
+                fontSize: '0.9em',
+                fontStyle: 'italic'
+              }}>
+                <p style={{ margin: '0.5rem 0' }}>ℹ️ <strong>Why this happens:</strong> Many websites implement security measures to prevent automated access, which is why we can't directly analyze their content.</p>
+              </div>
+            </div>
+          );
+        } catch (e) {
+          // If URL parsing fails, fall back to generic error
+          setError('This website cannot be accessed automatically. Please try copying and pasting the text instead.');
+        }
+      } 
       // Check for Reddit's protection message
-      if (url.toLowerCase().includes('reddit.com') && 
-          (errorMessage.includes('403') || errorMessage.toLowerCase().includes('blocked'))) {
-        setError('Reddit has protection against automated access. Please copy and paste the text you want to analyze instead of using the URL.');
-      } else {
+      else if (url.toLowerCase().includes('reddit.com')) {
+        setError(
+          <div style={{
+            padding: '1rem',
+            borderRadius: '8px',
+            backgroundColor: '#2d1a1a',
+            border: '1px solid #5c2b2b',
+            color: '#ffcdd2',
+            margin: '1rem 0'
+          }}>
+            <h3 style={{
+              color: '#ff8a80',
+              marginTop: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <span>🔒</span> Reddit Access Restricted
+            </h3>
+            <p>Reddit has protection against automated access. Please copy and paste the text you want to analyze instead of using the URL.</p>
+            <button 
+              onClick={() => setIsUrlInput(false)}
+              style={{
+                backgroundColor: '#5c2b2b',
+                color: 'white',
+                border: 'none',
+                padding: '0.5rem 1rem',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                marginTop: '0.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              ✏️ Switch to Text Input
+            </button>
+          </div>
+        );
+      } 
+      else {
         setError(errorMessage);
       }
     } finally {
@@ -109,6 +224,14 @@ const FakeNews: React.FC = () => {
       case 'suspicious': return 'Suspicious';
       default: return recommendation;
     }
+  };
+
+  // Error display component
+  const renderError = (error: React.ReactNode) => {
+    if (typeof error === 'string') {
+      return <div className="error-message">{error}</div>;
+    }
+    return error;
   };
 
   return (
@@ -210,11 +333,7 @@ const FakeNews: React.FC = () => {
             <button className="clear-button" onClick={clearResults}>Clear</button>
           </div>
 
-          {error && (
-            <div className="error-message">
-              <p style={{ color: '#F44336', marginTop: '1rem' }}>{error}</p>
-            </div>
-          )}
+          {error && renderError(error)}
 
           {result && (
             <div className="analysis-results">
