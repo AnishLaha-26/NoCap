@@ -756,6 +756,136 @@ html, body {
   margin: 0;
 }
 
+/* ScamDetector Specific Styles */
+.analysis-summary {
+  background: rgba(0, 0, 0, 0.2);
+  border-left: 4px solid #3b82f6;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+.analysis-summary h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #e0e7ff;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.summary-text {
+  margin: 0;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+}
+
+.red-flags-section,
+.legitimate-indicators-section {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.red-flags-section {
+  border-left: 4px solid #ef4444;
+}
+
+.legitimate-indicators-section {
+  border-left: 4px solid #10b981;
+}
+
+.red-flags-section h4,
+.legitimate-indicators-section h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+}
+
+.red-flags-list,
+.legitimate-indicators-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.red-flag-item,
+.legitimate-indicator-item {
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.red-flag-item {
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 3px solid #ef4444;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.red-flag-item::before {
+  content: "⚠️";
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.legitimate-indicator-item {
+  background: rgba(16, 185, 129, 0.1);
+  border-left: 3px solid #10b981;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.legitimate-indicator-item::before {
+  content: "✅";
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.recommendation-section {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 4px solid #3b82f6;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+.recommendation-section h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #e0e7ff;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.recommendation-text {
+  margin: 0;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.scam-type {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0 0;
+}
+
+.type-value {
+  font-weight: 700;
+  color: white;
+}
+
 /* Mobile Responsive Styles for AI Text Detector */
 @media (max-width: 768px) {
   .result-header {

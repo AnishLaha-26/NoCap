@@ -1,15 +1,16 @@
 import React, { useState, useRef } from 'react';
 
 interface ScamAnalysisResult {
-  image_analyzed: boolean;
+  screenshot_analyzed: boolean;
   scam_likelihood_percentage: number;
-  scam_reasoning: string;
   scam_confidence: string;
-  is_scam: boolean;
   scam_type: string;
+  is_likely_scam: boolean;
+  red_flags: string[];
+  legitimate_indicators: string[];
   risk_level: string;
-  detected_patterns: string[];
-  credibility_score: number;
+  recommended_action: string;
+  analysis_summary: string;
   model_used: string;
   analysis_type: string;
   timestamp: string;
@@ -56,41 +57,48 @@ const ScamDetector: React.FC = () => {
     setResult(null);
 
     try {
-      // Placeholder for actual scam image detection API call
-      // Replace this with your actual backend endpoint
-      const response = await fetch('http://127.0.0.1:8000/api/scam-image-detection/analyze/', {
+      // Extract base64 data without the data URL prefix if present
+      const base64Data = imageBase64.split(',')[1] || imageBase64;
+      
+      const response = await fetch('http://localhost:8000/scam-detection/analyze/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ image_base64: imageBase64 }),
+        body: JSON.stringify({
+          image_base64: base64Data
+        })
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
       }
 
-      const data: ScamAnalysisResult = await response.json();
-      setResult(data);
-    } catch (err) {
-      // For now, provide a mock response for demonstration
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const data = await response.json();
       
-      const mockResult: ScamAnalysisResult = {
-        image_analyzed: true,
-        scam_likelihood_percentage: Math.floor(Math.random() * 100),
-        scam_reasoning: "Analysis detected suspicious visual patterns including fake QR codes, phishing website screenshots, or fraudulent payment requests typical of scam images.",
-        scam_confidence: Math.random() > 0.5 ? 'high' : Math.random() > 0.3 ? 'medium' : 'low',
-        is_scam: Math.random() > 0.4,
-        scam_type: Math.random() > 0.5 ? 'qr_code_phishing' : Math.random() > 0.5 ? 'fake_payment_request' : 'fraudulent_website',
-        risk_level: Math.random() > 0.6 ? 'high' : Math.random() > 0.3 ? 'medium' : 'low',
-        detected_patterns: ['suspicious_qr_code', 'fake_payment_interface', 'phishing_url'],
-        credibility_score: Math.floor(Math.random() * 100),
-        model_used: 'NoCap Scam Image Detection Service',
-        analysis_type: 'scam_image_detection',
-        timestamp: new Date().toISOString()
+      // Map the API response to our ScamAnalysisResult interface
+      const result: ScamAnalysisResult = {
+        screenshot_analyzed: data.screenshot_analyzed || false,
+        scam_likelihood_percentage: data.scam_likelihood_percentage || 0,
+        scam_confidence: data.scam_confidence?.toLowerCase() || 'unknown',
+        scam_type: data.scam_type || 'unknown',
+        is_likely_scam: data.is_likely_scam || false,
+        red_flags: data.red_flags || [],
+        legitimate_indicators: data.legitimate_indicators || [],
+        risk_level: data.risk_level?.toLowerCase() || 'unknown',
+        recommended_action: data.recommended_action || 'No specific recommendation available',
+        analysis_summary: data.analysis_summary || 'No analysis available',
+        model_used: data.model_used || 'OpenAI GPT-4o',
+        analysis_type: data.analysis_type || 'scam_detection',
+        timestamp: data.timestamp || new Date().toISOString()
       };
-      setResult(mockResult);
+      
+      setResult(result);
+    } catch (err) {
+      console.error('Error analyzing scam image:', err);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      setResult(null);
     } finally {
       setIsAnalyzing(false);
     }
@@ -221,7 +229,7 @@ const ScamDetector: React.FC = () => {
                     </div>
                   </div>
                   <p className="verdict">
-                    {result.is_scam ? '⚠️ Likely Scam Message' : '✅ Appears Legitimate'}
+                    {result.is_likely_scam ? '⚠️ Likely Scam Message' : '✅ Appears Legitimate'}
                   </p>
                   <p className="confidence-info">
                     Confidence: <span 
@@ -244,32 +252,45 @@ const ScamDetector: React.FC = () => {
                     </div>
                   </div>
                   <p className="scam-type">
-                    Type: <span className="type-value">{result.scam_type.replace('_', ' ').toUpperCase()}</span>
-                  </p>
-                  <p className="credibility-score">
-                    Credibility Score: <span className="score-value">{result.credibility_score}/100</span>
+                    Type: <span className="type-value">{result.scam_type.toUpperCase()}</span>
                   </p>
                 </div>
               </div>
               
-              {result.detected_patterns && result.detected_patterns.length > 0 && (
-                <div className="patterns-section">
-                  <h4>Detected Scam Patterns</h4>
-                  <div className="patterns-list">
-                    {result.detected_patterns.map((pattern, index) => (
-                      <span key={index} className="pattern-tag">
-                        {pattern.replace('_', ' ')}
-                      </span>
+              <div className="analysis-summary">
+                <h4>Analysis Summary</h4>
+                <p className="summary-text">{result.analysis_summary}</p>
+              </div>
+              
+              {result.red_flags && result.red_flags.length > 0 && (
+                <div className="red-flags-section">
+                  <h4>🚩 Red Flags Detected</h4>
+                  <ul className="red-flags-list">
+                    {result.red_flags.map((flag, index) => (
+                      <li key={index} className="red-flag-item">
+                        {flag}
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
               )}
               
-              <div className="reasoning-sections">
-                <div className="reasoning-section">
-                  <h4>Analysis Reasoning</h4>
-                  <p className="reasoning-text">{result.scam_reasoning}</p>
+              {result.legitimate_indicators && result.legitimate_indicators.length > 0 && (
+                <div className="legitimate-indicators-section">
+                  <h4>✅ Legitimate Indicators</h4>
+                  <ul className="legitimate-indicators-list">
+                    {result.legitimate_indicators.map((indicator, index) => (
+                      <li key={index} className="legitimate-indicator-item">
+                        {indicator}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+              )}
+              
+              <div className="recommendation-section">
+                <h4>Recommended Action</h4>
+                <p className="recommendation-text">{result.recommended_action}</p>
               </div>
               
               <div className="metadata-section">
