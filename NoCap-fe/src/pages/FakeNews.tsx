@@ -21,6 +21,8 @@ interface AnalysisResponse {
 
 const FakeNews: React.FC = () => {
   const [url, setUrl] = useState('');
+  const [textInput, setTextInput] = useState('');
+  const [isUrlInput, setIsUrlInput] = useState(true);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,8 +31,10 @@ const FakeNews: React.FC = () => {
   const API_BASE_URL = 'https://nocap-be.onrender.com';
 
   const analyzeNews = async () => {
-    if (!url.trim()) {
-      setError('Please enter a valid URL');
+    const inputToAnalyze = isUrlInput ? url.trim() : textInput.trim();
+    
+    if (!inputToAnalyze) {
+      setError(isUrlInput ? 'Please enter a valid URL' : 'Please enter some text to analyze');
       return;
     }
 
@@ -39,12 +43,16 @@ const FakeNews: React.FC = () => {
     setResult(null);
 
     try {
+      const requestBody = isUrlInput 
+        ? { url: inputToAnalyze }
+        : { text: inputToAnalyze };
+
       const response = await fetch(`${API_BASE_URL}/api/fake-news-detection/analyze/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url: url.trim() }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await response.json();
@@ -59,7 +67,15 @@ const FakeNews: React.FC = () => {
         throw new Error(data.error || 'Analysis failed');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      
+      // Check for Reddit's protection message
+      if (url.toLowerCase().includes('reddit.com') && 
+          (errorMessage.includes('403') || errorMessage.toLowerCase().includes('blocked'))) {
+        setError('Reddit has protection against automated access. Please copy and paste the text you want to analyze instead of using the URL.');
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -67,7 +83,13 @@ const FakeNews: React.FC = () => {
 
   const clearResults = () => {
     setUrl('');
+    setTextInput('');
     setResult(null);
+    setError(null);
+  };
+
+  const toggleInputType = () => {
+    setIsUrlInput(!isUrlInput);
     setError(null);
   };
 
@@ -98,6 +120,74 @@ const FakeNews: React.FC = () => {
         </div>
         <div className="news-detector-interface">
           <div className="input-options">
+            <div className="toggle-container" style={{ marginBottom: '1rem' }}>
+              <button 
+                onClick={toggleInputType}
+                className={`toggle-btn ${isUrlInput ? 'active' : ''}`}
+                style={{
+                  padding: '8px 16px',
+                  marginRight: '8px',
+                  backgroundColor: isUrlInput ? '#1a73e8' : '#2d3748',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                URL
+              </button>
+              <button 
+                onClick={toggleInputType}
+                className={`toggle-btn ${!isUrlInput ? 'active' : ''}`}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: !isUrlInput ? '#1a73e8' : '#2d3748',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                Text
+              </button>
+            </div>
+            {isUrlInput ? (
+              <input
+                type="text"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="Enter news article URL"
+                className="url-input"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  marginBottom: '1rem',
+                  borderRadius: '4px',
+                  border: '1px solid #2d3748',
+                  backgroundColor: '#2d3748',
+                  color: 'white',
+                }}
+              />
+            ) : (
+              <textarea
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                placeholder="Paste article text here..."
+                className="text-input"
+                rows={6}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  marginBottom: '1rem',
+                  borderRadius: '4px',
+                  border: '1px solid #2d3748',
+                  backgroundColor: '#2d3748',
+                  color: 'white',
+                  resize: 'vertical',
+                  minHeight: '120px',
+                }}
+              />
+            )}
             <button className="input-type-button active">URL Input</button>
           </div>
           <input
